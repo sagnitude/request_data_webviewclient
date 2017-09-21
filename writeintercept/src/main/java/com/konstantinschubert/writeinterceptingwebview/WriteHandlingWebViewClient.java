@@ -46,7 +46,11 @@ public class WriteHandlingWebViewClient extends WebViewClient {
         WebResourceResponse webResourceResponse =  shouldInterceptRequest(
                 view, new WriteHandlingWebResourceRequest(request, requestBody, uri)
         );
-        return injectIntercept(webResourceResponse, view.getContext());
+        if (webResourceResponse != null) {
+            return injectIntercept(webResourceResponse, view.getContext());
+        } else {
+            return super.shouldInterceptRequest(view, request);
+        }
     }
 
     void addAjaxRequest(String id, String body){
@@ -93,7 +97,9 @@ public class WriteHandlingWebViewClient extends WebViewClient {
                 mime,
                 encoding
         );
-        return new WebResourceResponse(mime, encoding, injectedResponseData);
+        WebResourceResponse resp = new WebResourceResponse(mime, encoding, injectedResponseData);
+        resp.setResponseHeaders(response.getResponseHeaders());
+        return resp;
     }
 
     private InputStream injectInterceptToStream(
